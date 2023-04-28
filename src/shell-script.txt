@@ -1,8 +1,6 @@
-pwd
 ls
-ls ..
-cd ~/bin
+cd ..
+ls
+cd sprint
 ls
 pwd
-
-
