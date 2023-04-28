@@ -105,10 +105,10 @@ const parseTokens = function(tokens) {
   });
 };
 
-const run = function() {
+const main = function() {
   const code = fs.readFileSync(`./${process.argv[2]}`, 'utf-8');
   const tokens = tokenize(code);
   parseTokens(tokens);
 };
 
-run();
+main();

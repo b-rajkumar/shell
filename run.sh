@@ -1,1 +1,1 @@
-node src/shell.js
+node src/shell.js src/shell-script.txt
