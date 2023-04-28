@@ -1,4 +1,4 @@
-cd ../javascript
+cd ..
 pwd
 ls 
-cat fizzbuzz.js
+cat javascript/factorial.js

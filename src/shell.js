@@ -1,11 +1,8 @@
 const fs = require('fs');
 
-const env = {
-  home: process.env.HOME,
-  pwd: process.env.PWD
-};
+const {HOME, PWD} = process.env;
 
-const ls = function([path = env.pwd]) {
+const ls = function([path = env.PWD]) {
   const resolvedPath = resolvePath(path);
 
   if(!fs.existsSync(resolvedPath)) {
@@ -17,7 +14,7 @@ const ls = function([path = env.pwd]) {
 };
 
 const pwd = function() {
-  console.log('pwd: ' + env.pwd);
+  console.log('pwd: ' + env.PWD);
 };
 
 const cd = function([path = '~']) {
@@ -28,7 +25,7 @@ const cd = function([path = '~']) {
   };
 
   console.log('cd: ' + resolvedPath);
-  env.pwd = resolvedPath;
+  env.PWD = resolvedPath;
 };
 
 const cat = function([path = '']) {
@@ -43,7 +40,7 @@ const cat = function([path = '']) {
   };
 
   const contents = fs.readFileSync(resolvedPath, 'utf-8'); 
-  console.log('cat:' + contents);
+  console.log('cat: ' + contents);
 };
 
 const tokenize = function(code) {
@@ -53,16 +50,16 @@ const tokenize = function(code) {
 
 const resolvePath = function(relativePath) {
   const regx = /\.\./;
-  let path = env.pwd;
+  let path = env.PWD;
   relativePath = relativePath.replace(/^\.\/(.*)/, `$1`);
 
-  if(env.pwd === relativePath) {
-    return env.pwd;
+  if(env.PWD === relativePath) {
+    return env.PWD;
   }
 
   if(/~/.test(relativePath)) {
     relativePath = relativePath.replace(/~/, '');
-    path = env.home;
+    path = env.HOME;
   }
 
   relativePath = relativePath.replace(/^\/(.*)/, `$1`);
@@ -104,11 +101,3 @@ const parseTokens = function(tokens) {
     executeCommand(parsedToken);
   });
 };
-
-const main = function() {
-  const code = fs.readFileSync(`./${process.argv[2]}`, 'utf-8');
-  const tokens = tokenize(code);
-  parseTokens(tokens);
-};
-
-main();
