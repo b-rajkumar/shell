@@ -5,32 +5,45 @@ const env = {
   pwd: process.env.PWD
 };
 
-const commandOutputs = [];
-
 const ls = function([path = env.pwd]) {
   const resolvedPath = resolvePath(path);
 
   if(!fs.existsSync(resolvedPath)) {
-    throwError(resolvedPath);
+    throwError('ls: ' + resolvedPath);
   };
 
   const contents = fs.readdirSync(resolvedPath).join(' '); 
-  commandOutputs.push({'ls': contents});
+  console.log('ls: ' +  contents);
 };
 
 const pwd = function() {
-  commandOutputs.push({'pwd': env.pwd});
+  console.log('pwd: ' + env.pwd);
 };
 
 const cd = function([path = '~']) {
   const resolvedPath = resolvePath(path);
 
   if(!fs.existsSync(resolvedPath)) {
+    throwError('cd: ' + resolvedPath);
+  };
+
+  console.log('cd: ' + resolvedPath);
+  env.pwd = resolvedPath;
+};
+
+const cat = function([path = '']) {
+  if(path === '') {
+    throwError('cat');
+  }
+
+  const resolvedPath = resolvePath(path);
+
+  if(!fs.existsSync(resolvedPath)) {
     throwError(resolvedPath);
   };
 
-  commandOutputs.push({'cd': resolvedPath});
-  env.pwd = resolvedPath;
+  const contents = fs.readFileSync(resolvedPath, 'utf-8'); 
+  console.log('cat:' + contents);
 };
 
 const tokenize = function(code) {
@@ -41,17 +54,18 @@ const tokenize = function(code) {
 const resolvePath = function(relativePath) {
   const regx = /\.\./;
   let path = env.pwd;
-  relativePath = relativePath.replace(/\.\/(.*)/, `$1`);
+  relativePath = relativePath.replace(/^\.\/(.*)/, `$1`);
 
   if(env.pwd === relativePath) {
     return env.pwd;
   }
 
   if(/~/.test(relativePath)) {
-    relativePath = relativePath.replace(/~/, env.home);
-    return relativePath;
+    relativePath = relativePath.replace(/~/, '');
+    path = env.home;
   }
 
+  relativePath = relativePath.replace(/^\/(.*)/, `$1`);
   while(regx.test(relativePath)) {
     path = path.replace(/(.*)\/(.*)$/, `$1`);
     relativePath = relativePath.replace(/^\.\.(.*)/, `$1`);
@@ -59,12 +73,12 @@ const resolvePath = function(relativePath) {
   }
 
   let resolvedPath = path;
-  resolvedPath = `${path}/${relativePath}`;
+  resolvedPath = `${path}/${relativePath}`.replace(/(.*)\/\/(.*)$/, `$1/$2`);
 
-  return resolvedPath.replace(/(.*)\/\/(.*)/, `$1/$2`);
+  return resolvedPath;
 };
 
-const commands = {ls, pwd, cd};
+const commands = {ls, pwd, cd, cat};
 
 const throwError = function(path) {
   console.error(`${path}: no such file or directory`);
@@ -81,10 +95,9 @@ const executeCommand = function([command, ...args]) {
 
 const parseTokens = function(tokens) {
   tokens.forEach(function(token) {
-    const parsedToken = token.split(' ');
+    const parsedToken = token.replace(/  */, ' ').split(' ');
 
     if(!isValidToken(parsedToken[0])) {
-      console.log(commandOutputs);
       console.error(`${parsedToken[0]} : Invalid token!`);
       process.exit(1);
     }
@@ -96,7 +109,6 @@ const run = function() {
   const code = fs.readFileSync(`./${process.argv[2]}`, 'utf-8');
   const tokens = tokenize(code);
   parseTokens(tokens);
-  console.log(commandOutputs);
 };
 
 run();

@@ -1,9 +1,4 @@
+cd ../javascript
 pwd
-ls
-cd src
-pwd
-ls
-cd ~/projects
-pwd
-ls
-pwd
+ls 
+cat
