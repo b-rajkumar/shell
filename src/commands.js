@@ -8,8 +8,12 @@ const throwError = function(path) {
 
 const isValid = function(path, command) {
   if(!fs.existsSync(path)) {
-    throwError(command + path);
+    throwError(command + ': ' + path);
   };
+};
+
+const pwd = function(env) {
+  console.log('pwd: ' + env.PWD);
 };
 
 const ls = function(env, [path = env.PWD]) {
@@ -17,10 +21,6 @@ const ls = function(env, [path = env.PWD]) {
   isValid(resolvedPath, 'ls');
   const contents = fs.readdirSync(resolvedPath).join(' '); 
   console.log('ls: ' +  contents);
-};
-
-const pwd = function(env) {
-  console.log('pwd: ' + env.PWD);
 };
 
 const cd = function(env, [path = '~']) {

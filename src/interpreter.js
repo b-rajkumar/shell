@@ -9,16 +9,16 @@ const isValid = function(command) {
   return commands[command] !== undefined;
 };
 
-const executeInstruction = function({command, args}) {
+const execute = function({command, args}) {
   if(!isValid(command)) {
-    console.error('Invalid token');
+    console.error(`${command} Invalid token`);
     console.exit(1);
   }
   commands[command](env, args);
 };
 
-const execute = function(instructions) {
-  instructions.forEach(executeInstruction);
+const run = function(instructions) {
+  instructions.forEach(execute);
 };
 
-exports.execute = execute;
+exports.run = run;

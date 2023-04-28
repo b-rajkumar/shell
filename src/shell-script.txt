@@ -1,2 +1,7 @@
 pwd
 ls ../json
+cd ../json
+pwd
+cat ./person.json
+cd /Users
+pwd
