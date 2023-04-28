@@ -1,6 +1,9 @@
+pwd
 ls
-cd ..
+cd src
+pwd
 ls
-cd sprint
+cd ~/projects
+pwd
 ls
 pwd

@@ -1,22 +1,36 @@
 const fs = require('fs');
 
-const HOME = process.env.HOME;
-let PWD = process.env.PWD;
+const env = {
+  home: process.env.HOME,
+  pwd: process.env.PWD
+};
 
-const ls = function([path = PWD]) {
+const commandOutputs = [];
+
+const ls = function([path = env.pwd]) {
   const resolvedPath = resolvePath(path);
-  console.log(`ls : ${resolvedPath}`);
-  console.log(fs.readdirSync(resolvedPath));
+
+  if(!fs.existsSync(resolvedPath)) {
+    throwError(resolvedPath);
+  };
+
+  const contents = fs.readdirSync(resolvedPath).join(' '); 
+  commandOutputs.push({'ls': contents});
 };
 
 const pwd = function() {
-  console.log(`pwd: ${PWD}`);
+  commandOutputs.push({'pwd': env.pwd});
 };
 
 const cd = function([path = '~']) {
   const resolvedPath = resolvePath(path);
-  console.log(`cd : ${resolvedPath}`);
-  PWD = resolvedPath;
+
+  if(!fs.existsSync(resolvedPath)) {
+    throwError(resolvedPath);
+  };
+
+  commandOutputs.push({'cd': resolvedPath});
+  env.pwd = resolvedPath;
 };
 
 const tokenize = function(code) {
@@ -26,18 +40,17 @@ const tokenize = function(code) {
 
 const resolvePath = function(relativePath) {
   const regx = /\.\./;
+  let path = env.pwd;
+  relativePath = relativePath.replace(/\.\/(.*)/, `$1`);
 
-  if(PWD === relativePath) {
-    return PWD;
+  if(env.pwd === relativePath) {
+    return env.pwd;
   }
 
   if(/~/.test(relativePath)) {
-    relativePath = relativePath.replace(/~/, HOME);
+    relativePath = relativePath.replace(/~/, env.home);
     return relativePath;
   }
-
-  let path = PWD;
-  relativePath = relativePath.replace(/^\.\/(.*)/, `$1`);
 
   while(regx.test(relativePath)) {
     path = path.replace(/(.*)\/(.*)$/, `$1`);
@@ -53,6 +66,11 @@ const resolvePath = function(relativePath) {
 
 const commands = {ls, pwd, cd};
 
+const throwError = function(path) {
+  console.error(`${path}: no such file or directory`);
+  process.exit(1);
+};
+
 const isValidToken = function(token) {
   return commands[token] !== undefined;
 };
@@ -66,6 +84,7 @@ const parseTokens = function(tokens) {
     const parsedToken = token.split(' ');
 
     if(!isValidToken(parsedToken[0])) {
+      console.log(commandOutputs);
       console.error(`${parsedToken[0]} : Invalid token!`);
       process.exit(1);
     }
@@ -74,9 +93,10 @@ const parseTokens = function(tokens) {
 };
 
 const run = function() {
-  const code = fs.readFileSync('./src/shell-script.txt', 'utf-8');
+  const code = fs.readFileSync(`./${process.argv[2]}`, 'utf-8');
   const tokens = tokenize(code);
   parseTokens(tokens);
+  console.log(commandOutputs);
 };
 
 run();
