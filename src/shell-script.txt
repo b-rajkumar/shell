@@ -1,0 +1,8 @@
+pwd
+ls
+ls ..
+cd ~/bin
+ls
+pwd
+
+
