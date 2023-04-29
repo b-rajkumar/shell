@@ -1,7 +1,5 @@
 pwd
-ls ../json
-cd ../json
-pwd
-cat ./person.json
-cd /Users
+cd ..
+ls euler
+cat json/person.json
 pwd

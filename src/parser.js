@@ -1,12 +1,11 @@
 const tokenize = function(code) {
-  const commands = code.replace(/\n\n*/g,'\n').replace(/  */g, ' ');
-  return commands.split('\n').slice(0, -1);
+  const lines = code.replace(/\n\n*/g,'\n').replace(/  */g, ' ');
+  return lines.split('\n').slice(0, -1);
 };
 
 const parseTokens = function(tokens) {
   return tokens.map(function(token) {
-    const parsedToken = token.replace(/  */, ' ').split(' ');
-    const [command, ...args] = parsedToken;
+    const [command,...args] = token.replace(/  */, ' ').split(' ');
     return {command, args};
   });
 };

@@ -1,24 +1,30 @@
 const fs = require('fs');
 const commands = require('./commands.js');
-const env = {
-  PWD: process.env.PWD, 
-  HOME: process.env.HOME, 
-};
 
 const isValid = function(command) {
   return commands[command] !== undefined;
 };
 
-const execute = function({command, args}) {
+const execute = function(env, {command, args}) {
   if(!isValid(command)) {
-    console.error(`${command} Invalid token`);
-    console.exit(1);
+    console.error(`shell: ${command}: Invalid token`);
+    process.exit(1);
   }
-  commands[command](env, args);
+
+  return commands[command](env, args);
 };
 
 const run = function(instructions) {
-  instructions.forEach(execute);
+  const HOME = process.env.HOME;
+  let pwd = process.env.PWD;
+
+  return instructions.reduce(
+    function(output, cmd){
+      ({cmdOut, env:{pwd}} =  execute({pwd, HOME}, cmd));
+      const command = cmd.command;
+      output.push({command, cmdOut});
+      return output;
+    } , []);
 };
 
 exports.run = run;

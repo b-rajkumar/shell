@@ -1,6 +1,7 @@
 const fs = require('fs');
 const {tokenize, parseTokens} = require('./parser.js');
 const {run} = require('./interpreter.js');
+const {display} = require('../lib/utils.js');
 
 const main = function() {
   const filePath = process.argv[2];
@@ -11,7 +12,8 @@ const main = function() {
   const code = fs.readFileSync(filePath, 'utf-8');
   const tokens = tokenize(code);
   const instructions = parseTokens(tokens);
-  run(instructions);
+  const output = run(instructions);
+  display(output);
 };
 
 main();

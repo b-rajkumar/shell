@@ -6,6 +6,13 @@ const throwError = function(path) {
   process.exit(1);
 };
 
+const formatOutput = function(cmdOut, env) {
+  return {
+    cmdOut, 
+    env
+  }
+};
+
 const isValid = function(path, command) {
   if(!fs.existsSync(path)) {
     throwError(command + ': ' + path);
@@ -13,21 +20,21 @@ const isValid = function(path, command) {
 };
 
 const pwd = function(env) {
-  console.log('pwd: ' + env.PWD);
+  return formatOutput(env.pwd, env);
 };
 
-const ls = function(env, [path = env.PWD]) {
+const ls = function(env, [path = env.pwd]) {
   const resolvedPath = resolvePath(env, path);
   isValid(resolvedPath, 'ls');
   const contents = fs.readdirSync(resolvedPath).join(' '); 
-  console.log('ls: ' +  contents);
+  return formatOutput(contents, env);
 };
 
 const cd = function(env, [path = '~']) {
   const resolvedPath = resolvePath(env, path);
   isValid(resolvedPath, 'cd');
-  env.PWD = resolvedPath;
-  console.log('cd: ' + resolvedPath);
+  env.pwd = resolvedPath;
+  return formatOutput('', env);
 };
 
 const cat = function(env, [path = '']) {
@@ -37,7 +44,7 @@ const cat = function(env, [path = '']) {
   const resolvedPath = resolvePath(env, path);
   isValid(resolvedPath, 'cat');
   const contents = fs.readFileSync(resolvedPath, 'utf-8'); 
-  console.log('cat: ' + contents);
+  return formatOutput(contents, env);
 };
 
 exports.ls = ls;
