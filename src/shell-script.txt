@@ -3,3 +3,8 @@ cd ..
 ls euler
 cat json/person.json
 pwd
+cd shell
+pwd
+ls
+cd ../..
+pwd

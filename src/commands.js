@@ -36,7 +36,7 @@ const cd = function(env, [path = '~']) {
   isValid(resolvedPath, 'cd');
   env.pwd = resolvedPath;
 
-  return formatOutput('', env);
+  return formatOutput(resolvedPath, env);
 };
 
 const cat = function(env, [path = '']) {
