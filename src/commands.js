@@ -27,6 +27,7 @@ const ls = function(env, [path = env.pwd]) {
   const resolvedPath = resolvePath(env, path);
   isValid(resolvedPath, 'ls');
   const contents = fs.readdirSync(resolvedPath).join(' '); 
+
   return formatOutput(contents, env);
 };
 
@@ -34,6 +35,7 @@ const cd = function(env, [path = '~']) {
   const resolvedPath = resolvePath(env, path);
   isValid(resolvedPath, 'cd');
   env.pwd = resolvedPath;
+
   return formatOutput('', env);
 };
 
@@ -44,6 +46,7 @@ const cat = function(env, [path = '']) {
   const resolvedPath = resolvePath(env, path);
   isValid(resolvedPath, 'cat');
   const contents = fs.readFileSync(resolvedPath, 'utf-8'); 
+
   return formatOutput(contents, env);
 };
 
