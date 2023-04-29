@@ -32,8 +32,13 @@ const ls = function(env, [path = env.pwd]) {
 };
 
 const cd = function(env, [path = '~']) {
+  if(path === '-') {
+    path = env.oldPwd;
+  }
+
   const resolvedPath = resolvePath(env, path);
   isValid(resolvedPath, 'cd');
+  env.oldPwd = env.pwd;
   env.pwd = resolvedPath;
 
   return formatOutput(resolvedPath, env);

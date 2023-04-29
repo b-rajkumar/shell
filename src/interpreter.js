@@ -17,10 +17,11 @@ const execute = function(env, {command, args}) {
 const run = function(instructions) {
   const HOME = process.env.HOME;
   let pwd = process.env.PWD;
+  let oldPwd = HOME;
 
   return instructions.reduce(
     function(output, cmd){
-      ({cmdOut, env:{pwd}} =  execute({pwd, HOME}, cmd));
+      ({cmdOut, env:{pwd, oldPwd}} =  execute({pwd, HOME, oldPwd}, cmd));
       const command = cmd.command;
       output.push({command, cmdOut});
       return output;
