@@ -1,2 +1,2 @@
-cd src/..
-ls
+pwd
+echo src/*

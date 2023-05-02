@@ -12,8 +12,8 @@ const main = function() {
   const code = fs.readFileSync(filePath, 'utf-8');
   const tokens = tokenize(code);
   const instructions = parseTokens(tokens);
-  const output = run(instructions);
-  display(output);
+  const outputs = run(instructions);
+  display(outputs);
 };
 
 main();

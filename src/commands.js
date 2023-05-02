@@ -1,61 +1,73 @@
 const fs = require('fs');
 const {resolvePath} = require('../lib/utils.js');
 
-const throwError = function(path) {
-  console.error(`${path}: no such file or directory`);
-  process.exit(1);
-};
-
-const formatOutput = function(cmdOut, env) {
-  return {
-    cmdOut, 
-    env
-  }
-};
-
-const isValid = function(path, command) {
-  if(!fs.existsSync(path)) {
-    throwError(command + ': ' + path);
-  };
-};
-
 const pwd = function(env) {
-  return formatOutput(env.pwd, env);
+  const cmdOut = env.pwd;
+  return {cmdOut, env};
 };
 
-const ls = function(env, [path = env.pwd]) {
-  const resolvedPath = resolvePath(env, path);
-  isValid(resolvedPath, 'ls');
-  const contents = fs.readdirSync(resolvedPath).join(' '); 
+const ls = function(env, [path = env.pwd, ...rest]) {
+  const paths = [path, ...rest];
 
-  return formatOutput(contents, env);
+  const cmdOut = paths.reduce(function(lists, path) {
+    return lists + '\n' +  list(env, path);
+  }, '');
+
+  return {cmdOut, env};
+};
+
+const list = function(env, path) {
+  const resolvedPath = resolvePath(env, path);
+  const error = `${path}: No such file or directory`
+
+  if(!fs.existsSync(resolvedPath)) {
+    return error;
+  }
+
+  const cmdOut = fs.readdirSync(resolvedPath).join(' ');
+
+  return `${path}:
+  ${cmdOut}`;
 };
 
 const cd = function(env, [path = '~']) {
   if(path === '-') {
     path = env.oldPwd;
   }
-
   const resolvedPath = resolvePath(env, path);
-  isValid(resolvedPath, 'cd');
+  const cmdOut = resolvedPath; 
+  const error = `${path}: No such file or directory`
+
+  if(!fs.existsSync(resolvedPath)) {
+    return {env, error};
+  }
+
   env.oldPwd = env.pwd;
   env.pwd = resolvedPath;
 
-  return formatOutput(resolvedPath, env);
+  return {cmdOut, env};
 };
 
 const cat = function(env, [path = '']) {
-  if(path === '') {
-    throwError('cat');
-  }
   const resolvedPath = resolvePath(env, path);
-  isValid(resolvedPath, 'cat');
-  const contents = fs.readFileSync(resolvedPath, 'utf-8'); 
+  const error = `${path}: No such file or directory`
 
-  return formatOutput(contents, env);
+  if(!fs.existsSync(resolvedPath)) {
+    return {env, error};
+  }
+
+  const cmdOut = fs.readFileSync(resolvedPath, 'utf-8'); 
+
+  return {cmdOut, env};
+};
+
+const echo = function(env, text) {
+  const cmdOut = text.join(' ');
+  return {cmdOut, env};
 };
 
 exports.ls = ls;
 exports.pwd = pwd;
 exports.cd = cd;
 exports.cat = cat;
+exports.echo = echo;
