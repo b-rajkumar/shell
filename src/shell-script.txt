@@ -1,2 +1,2 @@
 pwd
-echo src/*
+echo lib/*/*

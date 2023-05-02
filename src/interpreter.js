@@ -25,21 +25,33 @@ const expandWildCard = function(argument, pwd) {
   if(startsWithQuote.test(argument) || (!argument.includes('*'))) {
     return argument;
   }
-
   argument = argument.replace(/\*\**/, '*');
-  const [prefix, postfix] = argument.split('*');
-  const parentDir = pwd + '/' +  prefix;
+
+  return resolveStar(argument, pwd).flat();
+};
+
+const resolveStar = function(argument, pwd) {
+  let [prefix, ...postfix] = argument.split('*');
+  let parentDir =  pwd + '/' + prefix;
+  postfix = postfix.join('*');
+
+  if(prefix.startsWith('/')) {
+    parentDir = prefix;
+  };
+
+  if(!fs.existsSync(parentDir + '/')) {
+    return parentDir;
+  }
+
   let contents = fs.readdirSync(parentDir);
 
-  contents = contents.map(function(content) {
-    return prefix + content + postfix;
-  });
-
-  return contents.filter(function(content) {
-    return fs.existsSync(pwd + '/' + content);
-  }); 
-
-  return contents;
+  return contents.map(function(content) {
+    let path = prefix + content + postfix;
+    if(path.includes('*')) {
+      path = resolveStar(path, pwd);
+    }
+    return path;
+  }).flat();
 };
 
 const run = function(instructions) {
